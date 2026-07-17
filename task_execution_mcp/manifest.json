@@ -1,49 +1,117 @@
 
 {
   "name": "TaskExecutionMCP",
-  "description": "A generic MCP server implementing a 7-step task execution loop.",
+  "description": "A functional universal task-execution engine implementing a 7-step LLM-powered loop with a robust toolset.",
   "actions": [
     {
       "name": "input_step",
-      "description": "Receives the initial user request.",
+      "description": "Receives the initial user request and initializes the task engine.",
       "input_schema": {"type": "string"},
       "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "request": {"type": "string"}}}
     },
     {
       "name": "understand_step",
-      "description": "Interprets the request and identifies what is needed.",
+      "description": "Uses LLM to classify the task, identify core needs, and assess complexity.",
       "input_schema": {"type": "string"},
-      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "understanding": {"type": "string"}}}
+      "output_schema": {
+        "type": "object", 
+        "properties": {
+          "status": {"type": "string"}, 
+          "message": {"type": "string"}, 
+          "understanding": {
+            "type": "object",
+            "properties": {
+              "classification": {"type": "string"},
+              "core_needs": {"type": "array", "items": {"type": "string"}},
+              "complexity": {"type": "string"}
+            }
+          }
+        }
+      }
     },
     {
       "name": "plan_step",
-      "description": "Generates a clear step-by-step plan.",
+      "description": "Generates a tool-based execution plan using filesystem, http, python, process, and browser tools.",
       "input_schema": {"type": "string"},
       "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "plan": {"type": "array", "items": {"type": "string"}}}}
     },
     {
       "name": "execute_step",
-      "description": "Performs the steps using available MCP tools.",
+      "description": "Executes the next step in the plan by routing to the appropriate system tool.",
       "input_schema": {"type": "string"},
-      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "execution_result": {"type": "string"}}}
+      "output_schema": {
+        "type": "object", 
+        "properties": {
+          "status": {"type": "string"}, 
+          "message": {"type": "string"}, 
+          "execution_result": {
+            "type": "object",
+            "properties": {
+              "tool": {"type": "string"},
+              "result": {"type": "object"}
+            }
+          }
+        }
+      }
     },
     {
       "name": "review_step",
-      "description": "Checks whether the result is correct or complete.",
+      "description": "Uses LLM to verify if the execution result meets the task requirements.",
       "input_schema": {"type": "string"},
-      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "review_feedback": {"type": "string"}}}
+      "output_schema": {
+        "type": "object", 
+        "properties": {
+          "status": {"type": "string"}, 
+          "message": {"type": "string"}, 
+          "review_feedback": {
+            "type": "object",
+            "properties": {
+              "is_complete": {"type": "boolean"},
+              "feedback": {"type": "string"},
+              "suggested_fix": {"type": "string", "nullable": true}
+            }
+          }
+        }
+      }
     },
     {
       "name": "fix_step",
-      "description": "Retries or adjusts steps if needed.",
+      "description": "Applies corrective actions using the toolset based on review feedback.",
       "input_schema": {"type": "string"},
-      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "fix_action": {"type": "string"}}}
+      "output_schema": {
+        "type": "object", 
+        "properties": {
+          "status": {"type": "string"}, 
+          "message": {"type": "string"}, 
+          "fix_result": {
+            "type": "object",
+            "properties": {
+              "tool": {"type": "string"},
+              "result": {"type": "object"}
+            }
+          }
+        }
+      }
     },
     {
       "name": "complete_step",
-      "description": "Returns the final result.",
+      "description": "Summarizes the final task outcome and list of artifacts produced.",
       "input_schema": {"type": "string"},
-      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "final_result": {"type": "string"}}}
+      "output_schema": {
+        "type": "object", 
+        "properties": {
+          "status": {"type": "string"}, 
+          "message": {"type": "string"}, 
+          "final_result": {
+            "type": "object",
+            "properties": {
+              "summary": {"type": "string"},
+              "artifacts": {"type": "array", "items": {"type": "string"}},
+              "status": {"type": "string"}
+            }
+          }
+        }
+      }
     }
   ]
 }

@@ -1,52 +1,37 @@
-# Task Execution MCP Server
+# Task Execution MCP Engine
 
-This Model Context Protocol (MCP) server provides a generic, reusable framework for executing tasks through a 7-step loop. It is designed to be plug-and-play for systems like LM Studio or CrewAI, offering a structured approach to task automation without project-specific logic.
+A fully functional, universal task-execution engine implementing the Model Context Protocol (MCP). This server transforms natural-language instructions into real actions through an LLM-powered 7-step loop and a robust system toolset.
 
-## Task Execution Loop
+## Key Features
 
-The server implements the following sequential steps for any given task:
+-   **LLM-Powered Logic**: Each step (Understand, Plan, Review, Fix, Complete) is driven by an LLM (default: `gpt-5-mini`) for intelligent decision-making.
+-   **Universal Toolset**: Built-in routing for:
+    -   `filesystem`: Read, write, and list files in a dedicated workspace.
+    -   `http`: Perform web requests (GET, POST, etc.).
+    -   `python`: Execute arbitrary Python code in the local environment.
+    -   `process`: Run shell commands and interact with the system.
+    -   `browser`: Simplified informational web fetching.
+-   **Structured Execution**: Follows a strict task loop to ensure reliability and correctness.
+-   **Plug-and-Play**: Designed for immediate integration with LM Studio, CrewAI, and other MCP-compatible clients.
 
-1.  **INPUT**: Receives the initial user request.
-2.  **UNDERSTAND**: Interprets the request to identify core needs and objectives.
-3.  **PLAN**: Generates a clear, step-by-step plan to address the interpreted request.
-4.  **EXECUTE**: Performs the planned steps using available MCP tools or internal logic.
-5.  **REVIEW**: Evaluates the results of the execution for correctness and completeness.
-6.  **FIX**: Adjusts or retries steps if the review indicates deficiencies.
-7.  **DONE**: Returns the final, validated result to the user.
+## The Task Execution Loop
 
-## Exposed MCP Actions
+1.  **INPUT**: Receives the natural-language task.
+2.  **UNDERSTAND**: Classifies the task and identifies core needs.
+3.  **PLAN**: Generates a step-by-step tool-based execution plan.
+4.  **EXECUTE**: Routes to the appropriate tool to perform real actions.
+5.  **REVIEW**: Evaluates the output against the original task.
+6.  **FIX**: Retries or adjusts execution if the review fails.
+7.  **DONE**: Returns a structured summary and list of artifacts.
 
-The server exposes the following MCP actions, each accepting text input and returning structured JSON:
+## Setup and Installation
 
--   `input_step`: Receives the user's initial request.
-    -   **Input**: `{"text_input": "<user_request_string>"}`
-    -   **Output**: `{"status": "success", "message": "User request received.", "request": "<user_request_string>"}`
+### Prerequisites
 
--   `understand_step`: Interprets the received request.
-    -   **Input**: `{"text_input": "<request_to_understand_string>"}`
-    -   **Output**: `{"status": "success", "message": "Request understood.", "understanding": "<interpreted_request_string>"}`
+-   Python 3.10+
+-   `OPENAI_API_KEY` environment variable set (for the engine logic).
 
--   `plan_step`: Generates a plan based on the understanding.
-    -   **Input**: `{"text_input": "<understanding_string>"}`
-    -   **Output**: `{"status": "success", "message": "Plan generated.", "plan": ["<step_1>", "<step_2>", ...]}`
-
--   `execute_step`: Executes the generated plan.
-    -   **Input**: `{"text_input": "<plan_or_step_to_execute_string>"}`
-    -   **Output**: `{"status": "success", "message": "Execution complete.", "execution_result": "<execution_summary_string>"}`
-
--   `review_step`: Reviews the execution result.
-    -   **Input**: `{"text_input": "<execution_result_string>"}`
-    -   **Output**: `{"status": "success", "message": "Review complete.", "review_feedback": "<review_feedback_string>"}`
-
--   `fix_step`: Applies fixes or adjustments based on review feedback.
-    -   **Input**: `{"text_input": "<review_feedback_string>"}`
-    -   **Output**: `{"status": "success", "message": "Fix applied.", "fix_action": "<fix_action_description_string>"}`
-
--   `complete_step`: Returns the final result of the task.
-    -   **Input**: `{"text_input": "<final_result_string>"}`
-    -   **Output**: `{"status": "success", "message": "Task completed.", "final_result": "<final_result_string>"}`
-
-## Setup and Usage
+### Installation
 
 1.  **Clone the repository**:
     ```bash
@@ -54,19 +39,35 @@ The server exposes the following MCP actions, each accepting text input and retu
     cd mcp_master_hub/task_execution_mcp
     ```
 
-2.  **Install dependencies** (if using Python):
+2.  **Install dependencies**:
     ```bash
-    pip install Flask
+    pip install flask requests openai
     ```
 
 3.  **Run the server**:
     ```bash
     python server.py
     ```
-    The server will run on `http://0.0.0.0:5000`.
+    The server starts on `http://0.0.0.0:5000`.
 
-4.  **Interact with the MCP actions** using HTTP POST requests to the respective endpoints (e.g., `http://localhost:5000/input_step`).
+## API Usage
+
+The server exposes endpoints corresponding to the task loop steps. Each endpoint accepts a `POST` request with a JSON body: `{"text_input": "..."}`.
+
+| Endpoint | Description |
+| :--- | :--- |
+| `/input_step` | Initialize a new task. |
+| `/understand_step` | Classify and analyze the task. |
+| `/plan_step` | Generate a tool-based plan. |
+| `/execute_step` | Execute the next tool call in the plan. |
+| `/review_step` | Review the execution result. |
+| `/fix_step` | Apply fixes if needed. |
+| `/complete_step` | Get the final task summary. |
+
+## Workspace
+
+All filesystem operations are restricted to `/home/ubuntu/mcp_workspace` to ensure safety and organization.
 
 ## Customization
 
-This server is designed to be a generic template. To make it functional for specific tasks, you will need to replace the `<PLACEHOLDER_LOGIC_...>` comments in `server.py` with actual implementation logic that integrates with your tools and models. The `manifest.json` defines the interface, and `server.py` provides the basic Flask application structure.
+You can modify `engine.py` to change the underlying LLM model or add new tools to `tools.py`. The `manifest.json` provides the standard interface for MCP clients.
