@@ -1,0 +1,49 @@
+
+{
+  "name": "TaskExecutionMCP",
+  "description": "A generic MCP server implementing a 7-step task execution loop.",
+  "actions": [
+    {
+      "name": "input_step",
+      "description": "Receives the initial user request.",
+      "input_schema": {"type": "string"},
+      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "request": {"type": "string"}}}
+    },
+    {
+      "name": "understand_step",
+      "description": "Interprets the request and identifies what is needed.",
+      "input_schema": {"type": "string"},
+      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "understanding": {"type": "string"}}}
+    },
+    {
+      "name": "plan_step",
+      "description": "Generates a clear step-by-step plan.",
+      "input_schema": {"type": "string"},
+      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "plan": {"type": "array", "items": {"type": "string"}}}}
+    },
+    {
+      "name": "execute_step",
+      "description": "Performs the steps using available MCP tools.",
+      "input_schema": {"type": "string"},
+      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "execution_result": {"type": "string"}}}
+    },
+    {
+      "name": "review_step",
+      "description": "Checks whether the result is correct or complete.",
+      "input_schema": {"type": "string"},
+      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "review_feedback": {"type": "string"}}}
+    },
+    {
+      "name": "fix_step",
+      "description": "Retries or adjusts steps if needed.",
+      "input_schema": {"type": "string"},
+      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "fix_action": {"type": "string"}}}
+    },
+    {
+      "name": "complete_step",
+      "description": "Returns the final result.",
+      "input_schema": {"type": "string"},
+      "output_schema": {"type": "object", "properties": {"status": {"type": "string"}, "message": {"type": "string"}, "final_result": {"type": "string"}}}
+    }
+  ]
+}
